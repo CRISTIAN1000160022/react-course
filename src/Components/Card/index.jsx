@@ -15,13 +15,17 @@ const Card = (item) => {
     event.stopPropagation();
     context.setCount(context.count + 1);
     context.setCartProducts([...context.cartProducts, productData]);
+    localStorage.setItem(
+      "cart-products",
+      JSON.stringify([...context.cartProducts, productData])
+    );
     context.openCheckoutSideMenu();
     context.closeProductDetail();
   };
 
   const renderIcon = (id) => {
     const isInCart =
-      context.cartProducts.filter((product) => product.id === id).length > 0;
+      context.cartProducts?.filter((product) => product.id === id).length > 0;
     if (isInCart) {
       return (
         <button
@@ -57,7 +61,7 @@ const Card = (item) => {
           alt={item.item.description}
         />
         {renderIcon(item.item.id)}
-        <p className="flex justify-between">
+        <p className="flex justify-between items-center">
           <span className="text-xs font-light mr-2 line-clamp-2 ">
             {item.item.title}
           </span>

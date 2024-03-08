@@ -3,7 +3,53 @@ import PropTypes from "prop-types";
 
 const ShoppingCartContext = createContext();
 
+const initializeLocalStorage = () => {
+  const accountInLocalStorage = localStorage.getItem("account");
+  const signOutInLocalStorage = localStorage.getItem("sign-out");
+  const cartProductsInLocalStorage = localStorage.getItem("cart-products"); 
+  const orderInLocalStorage = localStorage.getItem("order");
+
+  let parsedAccount;
+  let parsedSignOut;
+  let parsedCardProducts;
+  let parsedOrder;
+
+  if (!accountInLocalStorage) {
+    localStorage.setItem("account", JSON.stringify({}));
+    parsedAccount = {};
+  } else {
+    parsedAccount = JSON.parse(accountInLocalStorage);
+  }
+
+  if (!signOutInLocalStorage) {
+    localStorage.setItem("sign-out", JSON.stringify(false));
+    parsedSignOut = false;
+  } else {
+    parsedSignOut = JSON.parse(signOutInLocalStorage);
+  }
+
+  if (!cartProductsInLocalStorage) {
+    localStorage.setItem("cart-products", JSON.stringify([]));
+    parsedCardProducts = [];
+  } else {
+    parsedCardProducts = JSON.parse(cartProductsInLocalStorage);
+  }
+
+  if (!orderInLocalStorage) {
+    localStorage.setItem("order", JSON.stringify([]));
+    parsedOrder = [];
+  }
+  else {
+    parsedOrder = JSON.parse(orderInLocalStorage);
+  }
+};
+
 const ShoppingCartProvider = ({ children }) => {
+  //My Account
+  const [account, setAccount] = useState({});
+  //Sign Out
+  const [signOut, setSignOut] = useState(false);
+
   //Shopping Cart . Increment quantity
   const [count, setCount] = useState(0);
 
@@ -16,7 +62,8 @@ const ShoppingCartProvider = ({ children }) => {
   const [isCheckoutSideMenuOpen, setIsCheckoutSideMenuOpen] = useState(false);
   const openCheckoutSideMenu = () => setIsCheckoutSideMenuOpen(true);
   const closeCheckoutSideMenu = () => setIsCheckoutSideMenuOpen(false);
-  const changeStateCheckoutSideMenu = () => setIsCheckoutSideMenuOpen(!isCheckoutSideMenuOpen);
+  const changeStateCheckoutSideMenu = () =>
+    setIsCheckoutSideMenuOpen(!isCheckoutSideMenuOpen);
 
   //Product Detail . Show product
   const [productToShow, setProductToShow] = useState({});
@@ -74,7 +121,7 @@ const ShoppingCartProvider = ({ children }) => {
       if (!serchType) {
         return items;
       }
-    }
+    };
 
     if (searchByTitle && searchByCategory) {
       setFilteredItems(
@@ -101,7 +148,22 @@ const ShoppingCartProvider = ({ children }) => {
       setFilteredItems(filterBy(null, items, searchByTitle, searchByCategory));
     }
   }, [items, searchByTitle, searchByCategory]);
-  
+
+  useEffect(() => {
+    const insertLocalStorageToContext = () => {
+      const localStorageOrder = localStorage.getItem("order");
+      if (localStorageOrder) {
+        setOrder(JSON.parse(localStorageOrder));
+      }
+      const localStoragedCartProducts = localStorage.getItem("cart-products");
+      if (localStoragedCartProducts) {
+        setCartProducts(JSON.parse(localStoragedCartProducts));
+      }
+    }
+
+    insertLocalStorageToContext();
+  }, []);
+
   return (
     <ShoppingCartContext.Provider
       value={{
@@ -126,6 +188,10 @@ const ShoppingCartProvider = ({ children }) => {
         setSearchByTitle,
         filteredItems,
         setSearchByCategory,
+        account,
+        setAccount,
+        signOut,
+        setSignOut,
       }}
     >
       {children}
@@ -137,4 +203,4 @@ ShoppingCartProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-export { ShoppingCartContext, ShoppingCartProvider };
+export { ShoppingCartContext, ShoppingCartProvider, initializeLocalStorage };

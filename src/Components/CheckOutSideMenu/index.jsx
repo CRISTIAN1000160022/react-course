@@ -14,6 +14,7 @@ const CheckOutSideMenu = () => {
       (product) => product.id !== id
     );
     context.setCartProducts(filteredProducts);
+    localStorage.setItem("cart-products", JSON.stringify(filteredProducts));
   };
 
   const hadleCheckout = () => {
@@ -25,7 +26,12 @@ const CheckOutSideMenu = () => {
     };
 
     context.setOrder([...context.order, orderToAdd]);
+    localStorage.setItem(
+      "order",
+      JSON.stringify([...context.order, orderToAdd])
+    );
     context.setCartProducts([]);
+    localStorage.setItem("cart-products", JSON.stringify([]));
     context.setSearchByTitle(null);
   };
 
@@ -42,7 +48,7 @@ const CheckOutSideMenu = () => {
         </button>
       </div>
       <div className="flex flex-col overflow-y-scroll px-6 flex-1">
-        {context.cartProducts.map((product) => (
+        {context.cartProducts?.map((product) => (
           <OrderCard
             key={product.id}
             id={product.id}
